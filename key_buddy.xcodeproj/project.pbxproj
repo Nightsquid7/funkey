@@ -11,6 +11,7 @@
 		536B9000298158EA00C6799F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536B8FFF298158EA00C6799F /* ContentView.swift */; };
 		536B9002298158EC00C6799F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 536B9001298158EC00C6799F /* Assets.xcassets */; };
 		536B9005298158EC00C6799F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 536B9004298158EC00C6799F /* Preview Assets.xcassets */; };
+		53BA8603298497140058CB14 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 53BA8602298497140058CB14 /* App */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +21,7 @@
 		536B9001298158EC00C6799F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		536B9004298158EC00C6799F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		536B9006298158EC00C6799F /* key_buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = key_buddy.entitlements; sourceTree = "<group>"; };
+		53BA8600298495F90058CB14 /* App */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = App; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53BA8603298497140058CB14 /* App in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -36,8 +39,10 @@
 		536B8FF1298158EA00C6799F = {
 			isa = PBXGroup;
 			children = (
+				53BA8600298495F90058CB14 /* App */,
 				536B8FFC298158EA00C6799F /* key_buddy */,
 				536B8FFB298158EA00C6799F /* Products */,
+				53BA8601298497140058CB14 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,6 +74,13 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		53BA8601298497140058CB14 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -85,6 +97,9 @@
 			dependencies = (
 			);
 			name = key_buddy;
+			packageProductDependencies = (
+				53BA8602298497140058CB14 /* App */,
+			);
 			productName = key_buddy;
 			productReference = 536B8FFA298158EA00C6799F /* key_buddy.app */;
 			productType = "com.apple.product-type.application";
@@ -336,6 +351,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		53BA8602298497140058CB14 /* App */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = App;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 536B8FF2298158EA00C6799F /* Project object */;
 }
