@@ -26,81 +26,81 @@ public func KeyListenerEventCallback(proxy: CGEventTapProxy, type: CGEventType, 
     type = "\(event.type)"
   }
 
-  print("\(keyCode) \(type) shift \(shift) caps \(caps) cmd \(command) ctrl \(control) alt \(option) function \(function)")
+  print("\t\t\(keyCode) \(type) shift \(shift) caps \(caps) cmd \(command) ctrl \(control) alt \(option) function \(function)")
+  LayerController.shared.parse(event)
+  return Unmanaged.passRetained(event)
 
-
-  if LayerController.shared.currentLayer == nil {
-    // Parse the event to get layer
-    if event.type == .keyDown || event.type == .flagsChanged, let layer = LayerController.shared.parse(event) {
-      print("activate layer \(layer)")
-      LayerController.shared.currentLayer = layer
-      return Unmanaged.passUnretained(event)
-    }
-  }
-
-  if let layer = LayerController.shared.currentLayer {
-    if !layer.escapeKeys.contains(keyCode) && function == false {
-      print("do some thing in layer \(layer)")
-
-    } else {
-      print("deactivate layer \(layer)")
-      LayerController.shared.currentLayer = nil
-    }
-  }
-
-  return Unmanaged.passUnretained(event)
 }
+
+
 
 public final class LayerController {
   public static var shared: LayerController = LayerController()
   public var currentLayer: Layer?
-  var layers: [Layer] = [functionLayer]
+  var layers: [Layer] = [commandOptionControlComboLayer, leftRightCommandOptionLayer]
   var stream: [CGEvent] = []
 
-  // need to only parse note on events
-  func parse(_ event: CGEvent) -> Layer? {
-    stream.append(event)
+   func parse(_ event: CGEvent) {
+     stream.append(event)
+     print("stream.count \(stream.count)")
+     switch currentLayer {
+     case .some(let layer):
 
-    commandLoop: for layer in layers  {
-      let command = layer.activationCommand
-      let commandLength = command
-        .map { $0.count }
-        .reduce(0, { $0 + $1 })
-      print("\(#function):\(#line) command \(command), length: \(commandLength)")
-      guard commandLength <= stream.count else {
-        print("\(#function):\(#line) commandLength >= stream.count \(stream.count)")
-        continue commandLoop
-      }
+       guard layer.shouldDeactivate(event) == false else {
+         print("deactivate layer")
+         currentLayer = nil
+         stream = []
+         return
+       }
+       print("do something with event")
 
-      var commandIndex: Int = commandLength - 1
-      while commandIndex > 0 {
-        switch command[commandIndex] {
-        case .sequence(let sequence):
-          let sequenceStartIndex = commandIndex - sequence.count
-          let streamSequence = stream[sequenceStartIndex...commandIndex]
-            .map { $0.getIntegerValueField(.keyboardEventKeycode)}
-          guard sequence == streamSequence else {
-            break commandLoop
-          }
+     case .none:
+       layerLoop: for layer in layers  {
+         let command = layer.activationCommand
+         let commandLength = command
+           .map { $0.count }
+           .reduce(0, { $0 + $1 })
 
-        case .combination(let combination):
-          let sequenceStartIndex = commandIndex - combination.count
-          let streamSequence = stream[sequenceStartIndex...commandIndex]
-//            .filter { $0.type == .keyDown }
-            .map { $0.getIntegerValueField(.keyboardEventKeycode)}
+         guard commandLength <= stream.count else {
+           print("\(#function):\(#line) commandLength >= stream.count \(stream.count)")
+           continue layerLoop
+         }
 
-          guard Set(combination) == Set(streamSequence) else {
-            break commandLoop
-          }
-        }
+         var nextStreamIndex = stream.count - 1
+         sequenceLoop: for sequence in command.reversed() {
+           switch sequence {
+           case .sequence(let sequence):
+             var sequenceStartIndex = nextStreamIndex - (sequence.count - 1)
 
-        commandIndex -= command.count
-      }
-      print("\(#function):\(#line) return layer \(layer)")
-      return layer
-    }
-    print("\(#function):\(#line) return nil")
-    return nil
+             let streamSequence = stream[sequenceStartIndex...nextStreamIndex]
+               .map { $0.getIntegerValueField(.keyboardEventKeycode)}
+//             print("layerSequence \(sequence) Stream sequence \(streamSequence) \(stream.last!.getIntegerValueField(.keyboardEventKeycode             ))")
+             guard sequence == streamSequence else {
+               continue layerLoop
+             }
+             nextStreamIndex -= sequence.count
+
+           case .combination(let combination):
+             var sequenceStartIndex = nextStreamIndex - combination.count
+             if sequenceStartIndex < stream.count { sequenceStartIndex = stream.count - 1 }
+             let streamSequence = stream[sequenceStartIndex...nextStreamIndex]
+             //            .filter { $0.type == .keyDown }
+               .map { $0.getIntegerValueField(.keyboardEventKeycode)}
+
+             guard Set(combination) == Set(streamSequence) else {
+               continue layerLoop
+             }
+
+             nextStreamIndex -= combination.count
+           }
+         }
+
+
+         print("set currentLayer: \(layer)")
+         currentLayer = layer
+         stream = []
+       }
+     }
   }
 }
 
@@ -108,10 +108,29 @@ public struct Layer {
   var activationCommand: [KeyPattern]
   var escapeKeys: [Int64] = [53] // default is escape
   var mappings: [Int:String]
+
+  func shouldDeactivate(_ event: CGEvent) -> Bool {
+    let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
+    if escapeKeys.contains(keyCode) {
+      for key in escapeKeys {
+        switch key {
+        case 63:
+          // false fo key down event..
+          return event.flags.contains(.maskSecondaryFn) == false
+        default:
+          return true
+        }
+      }
+
+    }
+    return false
+  }
 }
 
 
-public let functionLayer = Layer(activationCommand: [.sequence([63])], escapeKeys: [63], mappings: [:])
+public let commandOptionControlComboLayer = Layer(activationCommand: [.sequence([55])], escapeKeys: [53], mappings: [:])
+public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54, 58])], escapeKeys: [53], mappings: [:])
+
 
 enum KeyPattern {
   case sequence([Int64])
@@ -128,3 +147,6 @@ enum KeyPattern {
 }
 
 
+struct ModifierFlags {
+
+}
