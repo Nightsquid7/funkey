@@ -1,3 +1,7 @@
-# App
+# Funkey / key_buddy
 
-A description of this package.
+Super simple software layer manager.
+
+## TODO:
+- add applescript / window switching
+- add key commands
