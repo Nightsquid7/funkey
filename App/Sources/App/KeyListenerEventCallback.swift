@@ -27,8 +27,9 @@ public func KeyListenerEventCallback(proxy: CGEventTapProxy, type: CGEventType, 
   }
 
   print("\t\t\(keyCode) \(type) shift \(shift) caps \(caps) cmd \(command) ctrl \(control) alt \(option) function \(function)")
-  LayerController.shared.parse(event)
-  return Unmanaged.passRetained(event)
+  var _event = event
+  LayerController.shared.parse(&_event)
+  return Unmanaged.passRetained(_event)
 
 }
 
@@ -37,12 +38,14 @@ public func KeyListenerEventCallback(proxy: CGEventTapProxy, type: CGEventType, 
 public final class LayerController {
   public static var shared: LayerController = LayerController()
   public var currentLayer: Layer?
-  var layers: [Layer] = [commandOptionControlComboLayer, leftRightCommandOptionLayer]
+  var layers: [Layer] = [leftRightCommandOptionLayer, commandOptionControlComboLayer]
   var stream: [CGEvent] = []
 
-   func parse(_ event: CGEvent) {
+   func parse(_ event: inout CGEvent) {
      stream.append(event)
-     print("stream.count \(stream.count)")
+     let keycode = event.getIntegerValueField(.keyboardEventKeycode
+     )
+     print("\tstream.count \(stream.count)")
      switch currentLayer {
      case .some(let layer):
 
@@ -52,7 +55,12 @@ public final class LayerController {
          stream = []
          return
        }
-       print("do something with event")
+       print("\tdo something with event")
+       if let mapping = layer.mappings.first(where: { $0.key == keycode }), event.type == .keyDown {
+         runScript(mapping.value)
+         // FIXME: is there another key code to replace instead of function key?
+         event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+       }
 
      case .none:
        layerLoop: for layer in layers  {
@@ -62,7 +70,7 @@ public final class LayerController {
            .reduce(0, { $0 + $1 })
 
          guard commandLength <= stream.count else {
-           print("\(#function):\(#line) commandLength >= stream.count \(stream.count)")
+           print("\t\(#function):\(#line) commandLength >= stream.count \(stream.count)")
            continue layerLoop
          }
 
@@ -70,11 +78,10 @@ public final class LayerController {
          sequenceLoop: for sequence in command.reversed() {
            switch sequence {
            case .sequence(let sequence):
-             var sequenceStartIndex = nextStreamIndex - (sequence.count - 1)
+             let sequenceStartIndex = nextStreamIndex - (sequence.count - 1)
 
              let streamSequence = stream[sequenceStartIndex...nextStreamIndex]
                .map { $0.getIntegerValueField(.keyboardEventKeycode)}
-//             print("layerSequence \(sequence) Stream sequence \(streamSequence) \(stream.last!.getIntegerValueField(.keyboardEventKeycode             ))")
              guard sequence == streamSequence else {
                continue layerLoop
              }
@@ -107,7 +114,7 @@ public final class LayerController {
 public struct Layer {
   var activationCommand: [KeyPattern]
   var escapeKeys: [Int64] = [53] // default is escape
-  var mappings: [Int:String]
+  var mappings: [Int64:String]
 
   func shouldDeactivate(_ event: CGEvent) -> Bool {
     let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
@@ -129,7 +136,17 @@ public struct Layer {
 
 
 public let commandOptionControlComboLayer = Layer(activationCommand: [.sequence([55])], escapeKeys: [53], mappings: [:])
-public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54, 58])], escapeKeys: [53], mappings: [:])
+public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54, 55])], escapeKeys: [53, 55], mappings: [
+  15: "open -a Finder",
+  14: "open -a key_buddy",
+  13: "open -a Simulator",
+  12: "open -a Slack",
+
+  3: "open -a Xcode_14.2.app",
+  2: "open -a 'Visual Studio Code'",
+  1: "open -a 'Firefox'",
+  0: "open -a Iterm",
+])
 
 
 enum KeyPattern {
@@ -144,9 +161,4 @@ enum KeyPattern {
       return values.count
     }
   }
-}
-
-
-struct ModifierFlags {
-
 }
