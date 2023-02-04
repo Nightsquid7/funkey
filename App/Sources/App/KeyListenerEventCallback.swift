@@ -38,7 +38,7 @@ public func KeyListenerEventCallback(proxy: CGEventTapProxy, type: CGEventType, 
 public final class LayerController {
   public static var shared: LayerController = LayerController()
   public var currentLayer: Layer?
-  var layers: [Layer] = [leftRightCommandOptionLayer, commandOptionControlComboLayer]
+  var layers: [Layer] = [leftRightCommandOptionLayer]
   var stream: [CGEvent] = []
 
    func parse(_ event: inout CGEvent) {
@@ -60,6 +60,8 @@ public final class LayerController {
          runScript(mapping.value)
          // FIXME: is there another key code to replace instead of function key?
          event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+//         currentLayer = nil
+//         stream = []
        }
 
      case .none:
@@ -134,9 +136,7 @@ public struct Layer {
   }
 }
 
-
-public let commandOptionControlComboLayer = Layer(activationCommand: [.sequence([55])], escapeKeys: [53], mappings: [:])
-public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54, 55])], escapeKeys: [53, 55], mappings: [
+public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], escapeKeys: [53], mappings: [
   15: "open -a Finder",
   14: "open -a key_buddy",
   13: "open -a Simulator",
