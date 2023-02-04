@@ -6,3 +6,4 @@ Super simple software layer manager.
 - add applescript / window switching
 - add key commands
 - add key swapping
+- parse commands from file
