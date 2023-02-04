@@ -136,9 +136,9 @@ public struct Layer {
   }
 }
 
-public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], escapeKeys: [53], mappings: [
+public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], escapeKeys: [53, 54], mappings: [
   15: "open -a Finder",
-  14: "open -a key_buddy",
+  14: "open -a Notes",
   13: "open -a Simulator",
   12: "open -a Slack",
 
