@@ -1,6 +1,6 @@
 import Foundation
 
-var frames: [CGRect] = []
+var displayRects: [CGRect] = []
 func runScript(_ message: String) {
 //  let executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
   let executableURL = URL(fileURLWithPath: "/bin/bash")
@@ -36,12 +36,12 @@ func runScript(_ message: String) {
 
             print(splitByComma)
             let frame1 = CGRect(x: splitByComma[0], y: splitByComma[1], width: splitByComma[2], height: splitByComma[3])
-            frames.append(frame1)
+            displayRects.append(frame1)
             if splitByComma.count == 8 {
               let frame2 = CGRect(x: splitByComma[4], y: splitByComma[5], width: splitByComma[6], height: splitByComma[7])
-              frames.append(frame2)
+              displayRects.append(frame2)
             }
-          print("frames \(frames)")
+          print("displayRects \(displayRects)")
         } catch {
           print("error \(error.localizedDescription)")
         }
