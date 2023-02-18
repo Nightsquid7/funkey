@@ -1,15 +1,28 @@
 import Foundation
 
 var displayRects: [CGRect] = []
-func runScript(_ arguments: [String]) {
-//  let executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-  let executableURL = URL(fileURLWithPath: "/bin/bash")
+public func initWindows() {
+  runScript(.applescript, [getScreens()])
+}
+enum ScriptPath: String {
+  case applescript = "/usr/bin/osascript"
+  case bash = "/bin/bash"
+}
+
+func runScript(_ scriptPath: ScriptPath = .bash, _ arguments: [String]) {
   do {
     let process = Process()
-    process.executableURL = executableURL
-    // -e for applescript, -c for bash
-    process.arguments = arguments
-    
+    process.executableURL = URL(fileURLWithPath: scriptPath.rawValue)
+    var _arguments: [String] = []
+    switch scriptPath {
+    case .applescript:
+      _arguments.append("-e")
+    case .bash:
+      _arguments.append("-c")
+    }
+
+    process.arguments = _arguments + arguments
+    print("process.arguments: \(process.arguments)")
     let outputPipe = Pipe()
     process.standardOutput = outputPipe
     try process.run()
@@ -24,7 +37,7 @@ func runScript(_ arguments: [String]) {
             return
           }
 
-              print("rawString \n\(rawString)")
+          print("rawString \n\(rawString)")
             let splitByComma = rawString
               .split(separator: ",")
               .compactMap { Float($0.trimmingCharacters(in: .whitespaces)) }
@@ -66,7 +79,11 @@ func getRunningApplications() -> String {
 }
 
 
-func moveWindow(rect: CGRect) -> String {
+func moveWindow(rect: CGRect?) -> String {
+  guard let rect = rect else {
+    print("dont have rect..")
+    return ""
+  }
   return """
   tell application "System Events"
     set currentApp to name of first application process whose frontmost is true

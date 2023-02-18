@@ -63,8 +63,8 @@ public final class LayerController {
            event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
            event.flags.remove(.maskControl )
            print("remap \(mapping.key) to \(remappedKey)")
-         case .shellCommand(let command):
-           runScript(command)
+         case .shellCommand(let path, let command):
+           runScript(path, command)
            // Set the value to function key to avoid calling native key command if it exists
            event.setIntegerValueField(.keyboardEventKeycode, value: 63)
          }
@@ -114,9 +114,10 @@ public final class LayerController {
          }
 
 
-         print("set currentLayer: \(layer)")
+         print("set currentLayer")
          currentLayer = layer
          stream = []
+
        }
      }
   }

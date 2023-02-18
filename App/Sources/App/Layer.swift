@@ -6,7 +6,7 @@ struct Mapping {
 }
 
 enum ActionType {
-  case shellCommand([String])
+  case shellCommand(ScriptPath, [String])
   case remap(Int64)
 }
 
@@ -34,19 +34,26 @@ public struct Layer {
 }
 
 public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], escapeKeys: [53, 54], mappings: [
-  .init(key: 15, action: .shellCommand(["-c", "open -a Finder"])),
-  .init(key: 14, action: .shellCommand(["-c", "open -a Notes"])),
-  .init(key: 13, action: .shellCommand(["-c", "open -a Simulator"])),
-  .init(key: 12, action: .shellCommand(["-c", "open -a Slack"])),
-  .init(key: 5, action: .shellCommand(["-c", "open -a Things3"])),
-  .init(key: 3, action: .shellCommand(["-c", "open -a Xcode_14.2.app"])),
-  .init(key: 2, action: .shellCommand(["-c", "open -a 'Visual Studio Code'"])),
-  .init(key: 1, action: .shellCommand(["-c", "open -a 'Firefox'"])),
-  .init(key: 0, action: .shellCommand(["-c", "open -a Iterm"])),
+  .init(key: 15, action: .shellCommand(.bash, ["open -a Finder"])),
+  .init(key: 14, action: .shellCommand(.bash, ["open -a Notes"])),
+  .init(key: 13, action: .shellCommand(.bash, ["open -a Simulator"])),
+  .init(key: 12, action: .shellCommand(.bash, ["open -a Slack"])),
+  .init(key: 5, action: .shellCommand(.bash, ["open -a Things3"])),
+  .init(key: 3, action: .shellCommand(.bash, ["open -a Xcode_14.2.app"])),
+  .init(key: 2, action: .shellCommand(.bash, ["open -a 'Visual Studio Code'"])),
+  .init(key: 1, action: .shellCommand(.bash, ["open -a 'Firefox'"])),
+  .init(key: 0, action: .shellCommand(.bash, ["open -a Iterm"])),
+
+
+    .init(key: 32, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .full))])), // u
+    .init(key: 38, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .bottomHalf))])), // n
+  .init(key: 40, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .topHalf))])), // e
+  .init(key: 37, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .leftHalf))])), // i
+  .init(key: 41, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .rightHalf))])), // o
 
 ])
 
-public let controlArrowKeys = Layer(activationCommand: [.sequence([59])], escapeKeys: [59, 53], mappings: [
+public let controlArrowKeys = Layer(activationCommand: [.sequence([59])], escapeKeys: [59, 53, 49], mappings: [
   .init(key: 38, action: .remap(123)), // n
   .init(key: 40, action: .remap(125)), // e
   .init(key: 37, action: .remap(126)), // i
