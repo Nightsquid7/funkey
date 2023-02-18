@@ -1,14 +1,14 @@
 import Foundation
 
 var displayRects: [CGRect] = []
-func runScript(_ message: String) {
+func runScript(_ arguments: [String]) {
 //  let executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
   let executableURL = URL(fileURLWithPath: "/bin/bash")
   do {
     let process = Process()
     process.executableURL = executableURL
-//    process.arguments = ["-e", message]
-    process.arguments = ["-c", message]
+    // -e for applescript, -c for bash
+    process.arguments = arguments
     
     let outputPipe = Pipe()
     process.standardOutput = outputPipe
