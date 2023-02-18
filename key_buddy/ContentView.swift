@@ -15,7 +15,8 @@ struct ContentView: View {
         .frame(minWidth: 300, minHeight: 300)
 
         .onAppear() {
-          
+          initWindows()
+
           let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
 
           guard let eventTap = CGEvent.tapCreate(tap: .cghidEventTap,
@@ -30,7 +31,7 @@ struct ContentView: View {
           let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
           CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
           CGEvent.tapEnable(tap: eventTap, enable: true)
-          CFRunLoopRun()
+//          CFRunLoopRun()
         }
     }
 
