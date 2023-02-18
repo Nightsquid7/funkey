@@ -38,14 +38,14 @@ public func KeyListenerEventCallback(proxy: CGEventTapProxy, type: CGEventType, 
 public final class LayerController {
   public static var shared: LayerController = LayerController()
   public var currentLayer: Layer?
-  var layers: [Layer] = [leftRightCommandOptionLayer]
+  var layers: [Layer] = [leftRightCommandOptionLayer, controlArrowKeys]
   var stream: [CGEvent] = []
 
    func parse(_ event: inout CGEvent) {
      stream.append(event)
      let keycode = event.getIntegerValueField(.keyboardEventKeycode)
 
-     print("\tstream.count \(stream.count)")
+//     print("\tstream.count \(stream.count)")
      switch currentLayer {
      case .some(let layer):
 
@@ -55,13 +55,22 @@ public final class LayerController {
          stream = []
          return
        }
-       print("\tdo something with event")
+//       ("\tdo something with event")
+
        if let mapping = layer.mappings.first(where: { $0.key == keycode }), event.type == .keyDown {
-         runScript(mapping.value)
-         // FIXME: is there another key code to replace instead of function key?
-         event.setIntegerValueField(.keyboardEventKeycode, value: 63)
-//         currentLayer = nil
-//         stream = []
+         switch mapping.action {
+         case .remap(let remappedKey):
+           event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
+           event.flags.remove(.maskControl )
+           print("remap \(mapping.key) to \(remappedKey)")
+         case .shellCommand(let command):
+           runScript(command)
+           // Set the value to function key to avoid calling native key command if it exists
+           event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+         }
+
+         stream = []
+         return
        }
 
      case .none:
@@ -72,7 +81,7 @@ public final class LayerController {
            .reduce(0, { $0 + $1 })
 
          guard commandLength <= stream.count else {
-           print("\t\(#function):\(#line) commandLength >= stream.count \(stream.count)")
+//           print("\t\(#function):\(#line) commandLength >= stream.count \(stream.count)")
            continue layerLoop
          }
 

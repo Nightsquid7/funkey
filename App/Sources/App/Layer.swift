@@ -1,9 +1,19 @@
 import Quartz
 
+struct Mapping {
+  var key: Int64
+  var action: ActionType
+}
+
+enum ActionType {
+  case shellCommand(String)
+  case remap(Int64)
+}
+
 public struct Layer {
   var activationCommand: [KeyPattern]
   var escapeKeys: [Int64] = [53] // default is escape
-  var mappings: [Int64:String]
+  var mappings: [Mapping]
 
   func shouldDeactivate(_ event: CGEvent) -> Bool {
     let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
@@ -24,16 +34,22 @@ public struct Layer {
 }
 
 public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], escapeKeys: [53, 54], mappings: [
-  15: "open -a Finder",
-  14: "open -a Notes",
-  13: "open -a Simulator",
-  12: "open -a Slack",
+  .init(key: 15, action: .shellCommand("open -a Finder")),
+  .init(key: 14, action: .shellCommand("open -a Notes")),
+  .init(key: 13, action: .shellCommand("open -a Simulator")),
+  .init(key: 12, action: .shellCommand("open -a Slack")),
+  .init(key: 5, action: .shellCommand("open -a Things3")),
+  .init(key: 3, action: .shellCommand("open -a Xcode_14.2.app")),
+  .init(key: 2, action: .shellCommand("open -a 'Visual Studio Code'")),
+  .init(key: 1, action: .shellCommand("open -a 'Firefox'")),
+  .init(key: 0, action: .shellCommand("open -a Iterm")),
 
-  3: "open -a Xcode_14.2.app",
-  2: "open -a 'Visual Studio Code'",
-  1: "open -a 'Firefox'",
-  0: "open -a Iterm",
 ])
 
-
+public let controlArrowKeys = Layer(activationCommand: [.sequence([59])], escapeKeys: [59, 53], mappings: [
+  .init(key: 38, action: .remap(123)), // n
+  .init(key: 40, action: .remap(125)), // e
+  .init(key: 37, action: .remap(126)), // i
+  .init(key: 41, action: .remap(124)), // o
+])
 
