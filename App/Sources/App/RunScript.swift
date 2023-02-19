@@ -1,6 +1,7 @@
 import Foundation
 
 var displayRects: [CGRect] = []
+var count: Int = 0
 public func initWindows() {
   runScript(.applescript, [getScreens()])
 }
@@ -36,25 +37,30 @@ func runScript(_ scriptPath: ScriptPath = .bash, _ arguments: [String]) {
             print("Could not run process~ \(process)")
             return
           }
-
+          // TODO:Move this out of here...
           print("rawString \n\(rawString)")
-            let splitByComma = rawString
-              .split(separator: ",")
-              .compactMap { Float($0.trimmingCharacters(in: .whitespaces)) }
-              .map { CGFloat($0) }
+          let splitByComma = rawString
+            .split(separator: ",")
+            .compactMap { Float($0.trimmingCharacters(in: .whitespaces)) }
+            .map { CGFloat($0) }
 
-            guard (splitByComma.count % 4) == 0  else {
-                return
-            }
+          guard (splitByComma.count % 4) == 0  else {
+            return
+          }
 
-            print(splitByComma)
-            let frame1 = CGRect(x: splitByComma[0], y: splitByComma[1], width: splitByComma[2], height: splitByComma[3])
-            displayRects.append(frame1)
-            if splitByComma.count == 8 {
-              let frame2 = CGRect(x: splitByComma[4], y: splitByComma[5], width: splitByComma[6], height: splitByComma[7])
-              displayRects.append(frame2)
-            }
+          guard count == 0 else {
+            return
+          }
+
+          print(splitByComma)
+          let frame1 = CGRect(x: splitByComma[0], y: splitByComma[1], width: splitByComma[2], height: splitByComma[3])
+          displayRects.append(frame1)
+          if splitByComma.count == 8 {
+            let frame2 = CGRect(x: splitByComma[4], y: splitByComma[5], width: splitByComma[6], height: splitByComma[7])
+            displayRects.append(frame2)
+          }
           print("displayRects \(displayRects)")
+          count = 1
         } catch {
           print("error \(error.localizedDescription)")
         }
@@ -137,6 +143,14 @@ func getScreens() -> String {
 
 func focusApp(app: String) -> String {
   return """
-  tell application "\(app)" to activate
+  do shell script "open -a \(app)"
+
+  delay 0.3
+    tell application "System Events"
+            key code 125
+            key code 126
+        end tell
+
+    end tell
   """
 }
