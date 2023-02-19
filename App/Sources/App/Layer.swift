@@ -53,10 +53,10 @@ public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54
 
 ])
 
-public let controlArrowKeys = Layer(activationCommand: [.sequence([59])], escapeKeys: [59, 53, 49], mappings: [
-  .init(key: 38, action: .remap(123)), // n
-  .init(key: 40, action: .remap(125)), // e
-  .init(key: 37, action: .remap(126)), // i
-  .init(key: 41, action: .remap(124)), // o
-])
+//public let controlArrowKeys = Layer(activationCommand: [.sequence([59])], escapeKeys: [59, 53, 49], mappings: [
+//  .init(key: 38, action: .remap(123)), // n
+//  .init(key: 40, action: .remap(125)), // e
+//  .init(key: 37, action: .remap(126)), // i
+//  .init(key: 41, action: .remap(124)), // o
+//])
 
