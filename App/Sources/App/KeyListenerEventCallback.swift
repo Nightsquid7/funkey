@@ -1,5 +1,6 @@
 import Combine
 import Quartz
+import Assets
 
 public func KeyListenerEventCallback(proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, refcon: UnsafeMutableRawPointer?) -> Unmanaged<CGEvent>? {
 
@@ -33,12 +34,23 @@ public func KeyListenerEventCallback(proxy: CGEventTapProxy, type: CGEventType, 
 
 }
 
+import AVKit
+public var enterLayerPlayer: AVAudioPlayer?
+public var exitLayerPlayer: AVAudioPlayer?
 
+public func initPlayer() {
+  do {
+    enterLayerPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: ascendURL))
+    exitLayerPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: descendURL))
+  } catch {
+      print("error \(error)")
+  }
+}
 
 public final class LayerController {
   public static var shared: LayerController = LayerController()
   public var currentLayer: Layer?
-  var layers: [Layer] = [leftRightCommandOptionLayer, controlArrowKeys]
+  var layers: [Layer] = [leftRightCommandOptionLayer]
   var stream: [CGEvent] = []
 
    func parse(_ event: inout CGEvent) {
@@ -51,6 +63,7 @@ public final class LayerController {
 
        guard layer.shouldDeactivate(event) == false else {
          print("deactivate layer")
+         exitLayerPlayer?.play()
          currentLayer = nil
          stream = []
          return
@@ -61,7 +74,7 @@ public final class LayerController {
          switch mapping.action {
          case .remap(let remappedKey):
            event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
-           event.flags.remove(.maskControl )
+           event.flags.remove(.maskControl)
            print("remap \(mapping.key) to \(remappedKey)")
          case .shellCommand(let path, let command):
            runScript(path, command)
@@ -115,6 +128,7 @@ public final class LayerController {
 
 
          print("set currentLayer")
+         enterLayerPlayer?.play()
          currentLayer = layer
          stream = []
 
