@@ -1,4 +1,5 @@
 import App
+import Assets
 import SwiftUI
 
 struct ContentView: View {
@@ -16,6 +17,7 @@ struct ContentView: View {
 
         .onAppear() {
           initWindows()
+          initPlayer()
 
           let eventMask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.keyUp.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
 
@@ -32,6 +34,7 @@ struct ContentView: View {
           CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
           CGEvent.tapEnable(tap: eventTap, enable: true)
 //          CFRunLoopRun()
+
         }
     }
 
