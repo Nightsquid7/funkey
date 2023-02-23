@@ -154,3 +154,32 @@ func focusApp(app: String) -> String {
     end tell
   """
 }
+
+func click(point: CGPoint) -> String {
+  return """
+tell application "System Events"
+  click at {\(point.x), \(point.y)}
+end tell
+
+"""
+}
+
+import Quartz
+enum SwiftCommand {
+  static func clickAtPoint(_ location: CGPoint) {
+    // Single mouse click.
+    var e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: location, mouseButton: .left)!
+    e.post(tap: .cghidEventTap)
+
+    e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: location, mouseButton: .left)!
+    e.post(tap: .cghidEventTap)
+  }
+}
+
+extension CGPoint {
+  static func mousePointForScreen(_ screenIndex: Int = 0) -> CGPoint {
+    var ml = NSEvent.mouseLocation
+    ml.y = NSHeight(NSScreen.screens[0].frame) - ml.y
+    return CGPoint(x: ml.x, y: ml.y)
+  }
+}

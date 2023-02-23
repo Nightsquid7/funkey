@@ -8,6 +8,8 @@ struct Mapping {
 enum ActionType {
   case shellCommand(ScriptPath, [String])
   case remap(Int64)
+//  case layer(Layer) // TODO: add layer command
+  case closure(() -> Void)
 }
 
 public struct Layer {
@@ -44,6 +46,10 @@ public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54
   .init(key: 1, action: .shellCommand(.bash, ["open -a 'Firefox'"])),
   .init(key: 0, action: .shellCommand(.bash, ["open -a Iterm"])),
 
+  .init(key: 6, action: .closure( { print("location: ", CGPoint.mousePointForScreen()) })),
+  .init(key: 9, action: .closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1265, y: 788.863037109375)) } )),
+  .init(key: 8, action: .closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1242, y: 785.863037109375)) } )),
+  .init(key: 7, action: .closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1145, y: 788.863037109375)) } )),
 
     .init(key: 32, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .full))])), // u
     .init(key: 38, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .bottomHalf))])), // n

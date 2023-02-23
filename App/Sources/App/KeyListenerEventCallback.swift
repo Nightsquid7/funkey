@@ -57,7 +57,6 @@ public final class LayerController {
      stream.append(event)
      let keycode = event.getIntegerValueField(.keyboardEventKeycode)
 
-//     print("\tstream.count \(stream.count)")
      switch currentLayer {
      case .some(let layer):
 
@@ -68,7 +67,6 @@ public final class LayerController {
          stream = []
          return
        }
-//       ("\tdo something with event")
 
        if let mapping = layer.mappings.first(where: { $0.key == keycode }), event.type == .keyDown {
          switch mapping.action {
@@ -79,6 +77,11 @@ public final class LayerController {
          case .shellCommand(let path, let command):
            runScript(path, command)
            // Set the value to function key to avoid calling native key command if it exists
+           event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+
+         case .closure(let closure):
+           print("run closure... ")
+           closure()
            event.setIntegerValueField(.keyboardEventKeycode, value: 63)
          }
 
