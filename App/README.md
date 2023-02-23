@@ -3,7 +3,7 @@
 Super simple software layer manager.
 
 ## TODO:
-- add applescript / window switching
-- add key commands
-- add key swapping
+- [x] add applescript / window switching
+- [x] add key swapping
+- [x] add mouse click  
 - parse commands from file
