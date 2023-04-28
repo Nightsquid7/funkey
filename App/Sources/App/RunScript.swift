@@ -99,26 +99,67 @@ func moveWindow(rect: CGRect?) -> String {
 """
 }
 
-func send(keyCode: Int, to application: String) -> String {
+func send(keyCode: Int, modifiers: [String] = [], to application: String) -> String {
+    var modifierText = modifiers.count > 0 ? "using {\(modifiers.joined(separator: ","))}" : ""
   return """
-    tell application "System Events"
-        set currentApplication to first process where it is frontmost
-        log currentApplication
+   tell application "System Events"
+         set currentApplication to first process where it is frontmost
+         log currentApplication
 
-        tell application "System Events"
-            tell process "\(application)"
-                set frontmost to true
-                key code \(keyCode)
+           tell process "Simulator" to set frontmost to true
+           tell application "System Events"
+                tell application \(application)
+               key code \(keyCode) \(modifiers)
             end tell
 
-        end tell
+         delay 0.1
+         tell currentApplication to set frontmost to true
 
-        delay 0.1
-        tell currentApplication to set frontmost to true
-
-    end tell
+   end tell
   """
 }
+
+func goHomeSimulator() -> String {
+    return """
+tell application "System Events"
+        tell process "Simulator" to set frontmost to true
+        tell application "System Events"
+            key code 4 using {shift down, command down}
+            key code 4 using {shift down, command down}
+         end tell
+end tell
+"""
+}
+//// FIXME: add command modifiers, and array and update above method...
+//func send(keyCodes: [Int], modifierKeys: [String], to application: String) -> String {
+//    func repeatedKeyCodes(_ keyCodes: [Int]) -> String {
+//        var result = [""]
+//        var modifierKeys: String = modifierKeys.count > 0 ? " using {\(modifierKeys.joined(separator: ", "))}" : ""
+//        for keyCode in keyCodes {
+//            result.append("keyCode \(keyCode)\(modifierKeys)")
+//        }
+//        return result.joined(separator: "\n")
+//    }
+//    let repeatedKeyCodes = repeatedKeyCodes(keyCodes)
+//  return """
+//    tell application "System Events"
+//        set currentApplication to first process where it is frontmost
+//        log currentApplication
+//
+//        tell application "System Events"
+//            tell process "\(application)"
+//                set frontmost to true
+//                \(repeatedKeyCodes)
+//            end tell
+//
+//        end tell
+//
+//        delay 0.1
+//        tell currentApplication to set frontmost to true
+//
+//    end tell
+//  """
+//}
 
 func getScreens() -> String {
   return """
@@ -166,14 +207,30 @@ end tell
 
 import Quartz
 enum SwiftCommand {
-  static func clickAtPoint(_ location: CGPoint) {
-    // Single mouse click.
-    var e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: location, mouseButton: .left)!
-    e.post(tap: .cghidEventTap)
+    static func clickAtPoint(_ location: CGPoint) {
+        // Single mouse click.
+        var e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: location, mouseButton: .left)!
+        e.post(tap: .cghidEventTap)
 
-    e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: location, mouseButton: .left)!
-    e.post(tap: .cghidEventTap)
-  }
+        e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: location, mouseButton: .left)!
+        e.post(tap: .cghidEventTap)
+    }
+
+    static func dragUpAtPoint(_ location: CGPoint) {
+      var e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: location, mouseButton: .left)!
+      e.post(tap: .cghidEventTap)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            var newLocation = location
+            newLocation.y -= 100
+            e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDragged, mouseCursorPosition: newLocation, mouseButton: .left)!
+            e.post(tap: .cghidEventTap)
+
+            e = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: newLocation, mouseButton: .left)!
+            e.post(tap: .cghidEventTap)
+        }
+
+    }
 }
 
 extension CGPoint {
