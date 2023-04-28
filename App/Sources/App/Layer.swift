@@ -2,7 +2,7 @@ import Quartz
 
 struct Mapping {
   var key: Int64
-  var action: ActionType
+  var actions: [ActionType]
 }
 
 enum ActionType {
@@ -36,26 +36,45 @@ public struct Layer {
 }
 
 public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], escapeKeys: [53, 54], mappings: [
-  .init(key: 15, action: .shellCommand(.bash, ["open -a Finder"])),
-  .init(key: 14, action: .shellCommand(.bash, ["open -a Notes"])),
-  .init(key: 13, action: .shellCommand(.bash, ["open -a Simulator"])),
-  .init(key: 12, action: .shellCommand(.bash, ["open -a Slack"])),
-  .init(key: 5, action: .shellCommand(.bash, ["open -a Things3"])),
-  .init(key: 3, action: .shellCommand(.bash, ["open -a Xcode_14.2.app"])),
-  .init(key: 2, action: .shellCommand(.bash, ["open -a 'Visual Studio Code'"])),
-  .init(key: 1, action: .shellCommand(.bash, ["open -a 'Firefox'"])),
-  .init(key: 0, action: .shellCommand(.bash, ["open -a Iterm"])),
+    .init(key: 15, actions: [.shellCommand(.bash, ["open -a Finder"])]),
+      .init(key: 14, actions: [.shellCommand(.bash, ["open -a Notes"])]),
+      .init(key: 13, actions: [.shellCommand(.bash, ["open -a Simulator"])]),
+      .init(key: 12, actions: [.shellCommand(.bash, ["open -a Slack"])]),
+      .init(key: 5, actions: [.shellCommand(.bash, ["open -a Things3"])]),
+      .init(key: 3, actions: [.shellCommand(.bash, ["open -a Xcode_14.2.app"])]),
+      .init(key: 2, actions: [.shellCommand(.bash, ["open -a 'Visual Studio Code'"])]),
+      .init(key: 1, actions: [.shellCommand(.bash, ["open -a 'Arc'"])]),
+      .init(key: 0, actions: [.shellCommand(.bash, ["open -a Iterm"])]),
 
-  .init(key: 6, action: .closure( { print("location: ", CGPoint.mousePointForScreen()) })),
-  .init(key: 9, action: .closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1265, y: 788.863037109375)) } )),
-  .init(key: 8, action: .closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1242, y: 785.863037109375)) } )),
-  .init(key: 7, action: .closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1145, y: 788.863037109375)) } )),
+      .init(key: 6, actions: [.closure( { print("location: ", CGPoint.mousePointForScreen()) })]), // z
+      .init(key: 7, actions: [.closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1460.30078125, y: 954.44140625)) } )]), // x
+      .init(key: 8, actions: [.closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1483.1953125, y: 958.44140625)) } )]), // c
+      .init(key: 9, actions: [  // v
+        .shellCommand(.applescript, [goHomeSimulator()]),
+        .closure({
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                SwiftCommand.dragUpAtPoint(CGPoint(x: 1325.71484375, y: 444.66796875))
+            }
+        }),
+        .closure( {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                runScript(.bash, ["open -a Xcode_14.2.app"])
 
-    .init(key: 32, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .full))])), // u
-    .init(key: 38, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .bottomHalf))])), // n
-  .init(key: 40, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .topHalf))])), // e
-  .init(key: 37, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .leftHalf))])), // i
-  .init(key: 41, action: .shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .rightHalf))])), // o
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    let script = send(keyCode: 15, modifiers: ["command down"], to: "Xcode_14.2.app")
+                    print(script)
+                    runScript(.applescript, [send(keyCode: 15, modifiers: ["command down"], to: "Xcode_14.2.app")])
+                }
+
+            }
+        })
+      ]),
+
+        .init(key: 32, actions: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .full))])]), // u
+        .init(key: 38, actions: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .bottomHalf))])]), // n
+      .init(key: 40, actions: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .topHalf))])]), // e
+      .init(key: 37, actions: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .leftHalf))])]), // i
+      .init(key: 41, actions: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .rightHalf))])]), // o
 
 ])
 
