@@ -68,24 +68,33 @@ public final class LayerController {
          return
        }
 
-       if let mapping = layer.mappings.first(where: { $0.key == keycode }), event.type == .keyDown {
-           for action in mapping.actions {
-               switch action {
-               case .remap(let remappedKey):
-                   event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
-                   event.flags.remove(.maskControl)
-                   print("remap \(mapping.key) to \(remappedKey)")
-               case .shellCommand(let path, let command):
-                   runScript(path, command)
-                   // Set the value to function key to avoid calling native key command if it exists
-                   event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+         func contextMatchesCurrentApplication(_ context: String?) -> Bool {
+             print(NSWorkspace.shared.frontmostApplication?.localizedName)
+             if let context = context {
+                 return context == NSWorkspace.shared.frontmostApplication?.localizedName
+             }
+             return true
+         }
+         if let mapping = layer.mappings.first(where: { contextMatchesCurrentApplication($0.context) && ($0.key == keycode) }), event.type == .keyDown {
+          for command in mapping.commands {
 
-               case .closure(let closure):
-                   print("run closure... ")
-                   closure()
-                   event.setIntegerValueField(.keyboardEventKeycode, value: 63)
-               }
-           }
+              switch command {
+              case .remap(let remappedKey):
+                  event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
+                  event.flags.remove(.maskControl)
+                  print("remap \(mapping.key) to \(remappedKey)")
+              case .shellCommand(let path, let command):
+                  runScript(path, command)
+                  // Set the value to function key to avoid calling native key command if it exists
+                  event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+
+              case .closure(let closure):
+                  print("run closure... ")
+                  closure()
+                  event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+              }
+          }
+
 
          stream = []
          return
