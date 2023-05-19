@@ -7,22 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		536B8FFE298158EA00C6799F /* key_buddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536B8FFD298158EA00C6799F /* key_buddyApp.swift */; };
+		536B8FFE298158EA00C6799F /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536B8FFD298158EA00C6799F /* App.swift */; };
 		536B9000298158EA00C6799F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536B8FFF298158EA00C6799F /* ContentView.swift */; };
 		536B9002298158EC00C6799F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 536B9001298158EC00C6799F /* Assets.xcassets */; };
 		536B9005298158EC00C6799F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 536B9004298158EC00C6799F /* Preview Assets.xcassets */; };
 		53BA8603298497140058CB14 /* App in Frameworks */ = {isa = PBXBuildFile; productRef = 53BA8602298497140058CB14 /* App */; };
+		CFD6F0FC2A17182A0055682E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD6F0FB2A17182A0055682E /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		536B8FFA298158EA00C6799F /* key_buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = key_buddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		536B8FFD298158EA00C6799F /* key_buddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = key_buddyApp.swift; sourceTree = "<group>"; };
+		536B8FFD298158EA00C6799F /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		536B8FFF298158EA00C6799F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		536B9001298158EC00C6799F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		536B9004298158EC00C6799F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		536B9006298158EC00C6799F /* key_buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = key_buddy.entitlements; sourceTree = "<group>"; };
 		53BA8600298495F90058CB14 /* App */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = App; sourceTree = "<group>"; };
 		53D1394D29A0B75900F8F135 /* key-buddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "key-buddy-Info.plist"; sourceTree = SOURCE_ROOT; };
+		CFD6F0FB2A17182A0055682E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,7 +61,8 @@
 			isa = PBXGroup;
 			children = (
 				53D1394D29A0B75900F8F135 /* key-buddy-Info.plist */,
-				536B8FFD298158EA00C6799F /* key_buddyApp.swift */,
+				536B8FFD298158EA00C6799F /* App.swift */,
+				CFD6F0FB2A17182A0055682E /* AppDelegate.swift */,
 				536B8FFF298158EA00C6799F /* ContentView.swift */,
 				536B9001298158EC00C6799F /* Assets.xcassets */,
 				536B9006298158EC00C6799F /* key_buddy.entitlements */,
@@ -156,8 +159,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFD6F0FC2A17182A0055682E /* AppDelegate.swift in Sources */,
 				536B9000298158EA00C6799F /* ContentView.swift in Sources */,
-				536B8FFE298158EA00C6799F /* key_buddyApp.swift in Sources */,
+				536B8FFE298158EA00C6799F /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,7 +291,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"key_buddy/Preview Content\"";
-				DEVELOPMENT_TEAM = E939BBZ6X4;
+				DEVELOPMENT_TEAM = WQF6ZDWN8R;
 				ENABLE_HARDENED_RUNTIME = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
