@@ -1,8 +1,12 @@
 import Quartz
 
 struct Context {
+    enum `Type` {
+        case global
+        case app(String)
+    }
     // Name of app
-    let name: String
+    let name: `Type`
     // when app is focused, these key commands are triggered
     let mappings: [Mapping]
 }
@@ -22,12 +26,13 @@ enum CommandType {
 }
 
 public struct Layer {
-  var activationCommand: [KeyPattern]
+    // for now only activate layer with single key...
+  var activationCommand: Int64
   var exitKeys: [Int64] = [53] // default is escape
   var mappings: [Mapping]
 }
 
-public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], exitKeys: [53, 54], mappings: [
+public let rightCommandOptionLayer = Layer(activationCommand: 54, exitKeys: [53, 54], mappings: [
     .init(key: 46, commands: [.shellCommand(.bash, ["osascript /Users/s-berkowitz/Development/scripting/toggle_mic_googleMeets.applescript"])]),
     .init(key: 17, commands: [.shellCommand(.bash, ["open -a Kaleidoscope"])]),
     .init(key: 15, commands: [.shellCommand(.bash, ["open -a Finder"])]),
@@ -75,7 +80,7 @@ public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54
 
 ])
 
-public let controlArrowKeys = Layer(activationCommand: [.sequence([59])], exitKeys: [59, 53, 49], mappings: [
+public let controlArrowKeys = Layer(activationCommand: 59, exitKeys: [59, 53, 49], mappings: [
   .init(key: 38, commands: [.remap(123)]), // n
   .init(key: 40, commands: [.remap(125)]), // e
   .init(key: 37, commands: [ .remap(126)]), // i

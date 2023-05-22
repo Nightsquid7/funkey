@@ -50,7 +50,7 @@ public func initPlayer() {
 public final class LayerController {
   public static var shared: LayerController = LayerController()
   public var currentLayer: Layer?
-  var layers: [Layer] = [leftRightCommandOptionLayer]
+  var layers: [Layer] = [rightCommandOptionLayer]
   var stream: [CGEvent] = []
 
    func parse(_ event: inout CGEvent) {
@@ -86,7 +86,6 @@ public final class LayerController {
                   event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
                   // SHould not be hardcoded, should add meta key to remove
                   event.flags.remove(.maskControl)
-//                  NSWorkspace.shared.frontmostApplication?.activate()
                   print("remap \(mapping.key) to \(remappedKey)")
               case .shellCommand(let path, let command):
                   runScript(path, command)
@@ -106,52 +105,11 @@ public final class LayerController {
        }
 
      case .none:
-       layerLoop: for layer in layers  {
-         let command = layer.activationCommand
-         let commandLength = command
-           .map { $0.count }
-           .reduce(0, { $0 + $1 })
-
-         guard commandLength <= stream.count else {
-//           print("\t\(#function):\(#line) commandLength >= stream.count \(stream.count)")
-           continue layerLoop
+         if let layer = layers.first(where: { $0.activationCommand == keycode }) {
+             enterLayerPlayer?.play()
+             print("set currentLayer")
+             currentLayer = layer
          }
-
-         var nextStreamIndex = stream.count - 1
-         sequenceLoop: for sequence in command.reversed() {
-           switch sequence {
-           case .sequence(let sequence):
-             let sequenceStartIndex = nextStreamIndex - (sequence.count - 1)
-
-             let streamSequence = stream[sequenceStartIndex...nextStreamIndex]
-               .map { $0.getIntegerValueField(.keyboardEventKeycode)}
-             guard sequence == streamSequence else {
-               continue layerLoop
-             }
-             nextStreamIndex -= sequence.count
-
-           case .combination(let combination):
-             var sequenceStartIndex = nextStreamIndex - combination.count
-             if sequenceStartIndex < stream.count { sequenceStartIndex = stream.count - 1 }
-             let streamSequence = stream[sequenceStartIndex...nextStreamIndex]
-             //            .filter { $0.type == .keyDown }
-               .map { $0.getIntegerValueField(.keyboardEventKeycode)}
-
-             guard Set(combination) == Set(streamSequence) else {
-               continue layerLoop
-             }
-
-             nextStreamIndex -= combination.count
-           }
-         }
-
-
-         print("set currentLayer")
-         enterLayerPlayer?.play()
-         currentLayer = layer
-         stream = []
-
-       }
      }
   }
 }
