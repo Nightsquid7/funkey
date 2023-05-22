@@ -51,11 +51,46 @@ public final class LayerController {
   public static var shared: LayerController = LayerController()
   public var currentLayer: Layer?
   var layers: [Layer] = [rightCommandOptionLayer]
+    var contexts: [Context] =
+    [
+        .init(name: .app("Slack"),
+              mappings: [
+                .init(key: 29,
+                      commands:
+                        [
+                        .shellCommand(.applescript, [send(keyCode: 5,
+                                                       modifiers: [.command, .shift],
+                                                       to: "Slack")])
+                        ]
+                     )
+              ]
+            )
+    ]
+
   var stream: [CGEvent] = []
 
    func parse(_ event: inout CGEvent) {
      stream.append(event)
      let keycode = event.getIntegerValueField(.keyboardEventKeycode)
+
+       func run(_ command: CommandType) {
+           switch command {
+           case .remap(let remappedKey):
+               event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
+               // Should not be hardcoded, should add meta key to remove
+               event.flags.remove(.maskControl)
+               print("remap \(keycode) to \(remappedKey)")
+           case .shellCommand(let path, let command):
+               runScript(path, command)
+               // Set the value to function key to avoid calling native key command if it exists
+               event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+
+           case .closure(let closure):
+               print("run closure... ")
+               closure()
+               event.setIntegerValueField(.keyboardEventKeycode, value: 63)
+           }
+       }
 
      switch currentLayer {
      case .some(let layer):
@@ -71,40 +106,43 @@ public final class LayerController {
          return
        }
 
+
          func contextMatchesCurrentApplication(_ context: String?) -> Bool {
              if let context = context {
                  return context == NSWorkspace.shared.frontmostApplication?.localizedName
              }
              return true
          }
-         
+
          if let mapping = layer.mappings.first(where: { contextMatchesCurrentApplication($0.context) && ($0.key == keycode) }), event.type == .keyDown {
           for command in mapping.commands {
-
-              switch command {
-              case .remap(let remappedKey):
-                  event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
-                  // SHould not be hardcoded, should add meta key to remove
-                  event.flags.remove(.maskControl)
-                  print("remap \(mapping.key) to \(remappedKey)")
-              case .shellCommand(let path, let command):
-                  runScript(path, command)
-                  // Set the value to function key to avoid calling native key command if it exists
-                  event.setIntegerValueField(.keyboardEventKeycode, value: 63)
-
-              case .closure(let closure):
-                  print("run closure... ")
-                  closure()
-                  event.setIntegerValueField(.keyboardEventKeycode, value: 63)
-              }
+              run(command)
           }
-
 
          stream = []
          return
        }
 
      case .none:
+         func mappingFlagsMatchEventKey(_ mapping: Mapping) -> Bool {
+             return mapping.modifiers
+                 .map { event.flags.contains($0.cgEventFlag) }
+                 .allSatisfy({ $0 == true })
+         }
+
+         if event.type == .keyDown {
+             for context in contexts {
+                 if case .app(let name) = context.name, name == NSWorkspace.shared.frontmostApplication?.localizedName,
+                    let mapping = context.mappings.first(where: { $0.key == keycode } ),
+                    mappingFlagsMatchEventKey(mapping) {
+                     mapping.commands.forEach {
+                         run($0)
+                     }
+                     stream = []
+                     return
+                 }
+             }
+         }
          if let layer = layers.first(where: { $0.activationCommand == keycode }) {
              enterLayerPlayer?.play()
              print("set currentLayer")
