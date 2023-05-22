@@ -56,6 +56,7 @@ public final class LayerController {
         .init(name: .app("Slack"),
               mappings: [
                 .init(key: 29,
+                      modifiers: [.command],
                       commands:
                         [
                         .shellCommand(.applescript, [send(keyCode: 5,
