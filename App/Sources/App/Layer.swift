@@ -2,7 +2,7 @@ import Quartz
 
 struct Context {
     enum `Type` {
-        case global
+        case layer
         case app(String)
     }
     // Name of app
@@ -35,20 +35,10 @@ enum Modifier: String {
 }
 
 struct Mapping {
-  // should also include modifiers...
   var key: Int64
-    var modifiers: [Modifier] = []
+  var modifiers: [Modifier] = []
   var context: String?
   var commands: [CommandType]
-//    init(key: Int64,
-//         modifiers: [Modifier] = [],
-//         context: String? = nil,
-//         commands: [CommandType]) {
-//        self.key = key
-//        self.modifiers = modifiers
-//        self.context = context
-//        self.commands = commands
-//    }
 }
 
 enum CommandType {
@@ -58,6 +48,7 @@ enum CommandType {
 //  case switchLayer(Layer) // TODO: add layer command
 }
 
+// Now thinking that should replace layer with Context, and add activationKeys and exitKeys to layer
 public struct Layer {
     // for now only activate layer with single key...
   var activationCommand: Int64
