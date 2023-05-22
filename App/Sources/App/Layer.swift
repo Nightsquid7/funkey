@@ -11,11 +11,44 @@ struct Context {
     let mappings: [Mapping]
 }
 
+enum Modifier: String {
+    case shift
+    case caps
+    case command
+    case control
+    case function
+
+    var cgEventFlag: CGEventFlags {
+        switch self {
+        case .command:
+            return .maskCommand
+        case .shift:
+            return .maskShift
+        case .caps:
+            return .maskAlphaShift
+        case .control:
+            return .maskControl
+        case .function:
+            return .maskSecondaryFn
+        }
+    }
+}
 
 struct Mapping {
+  // should also include modifiers...
   var key: Int64
+    var modifiers: [Modifier] = []
   var context: String?
   var commands: [CommandType]
+//    init(key: Int64,
+//         modifiers: [Modifier] = [],
+//         context: String? = nil,
+//         commands: [CommandType]) {
+//        self.key = key
+//        self.modifiers = modifiers
+//        self.context = context
+//        self.commands = commands
+//    }
 }
 
 enum CommandType {
@@ -63,9 +96,9 @@ public let rightCommandOptionLayer = Layer(activationCommand: 54, exitKeys: [53,
                 runScript(.bash, ["open -a Xcode_14.2.app"])
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    let script = send(keyCode: 15, modifiers: ["command down"], to: "Xcode_14.2.app")
+                    let script = send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")
                     print(script)
-                    runScript(.applescript, [send(keyCode: 15, modifiers: ["command down"], to: "Xcode_14.2.app")])
+                    runScript(.applescript, [send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")])
                 }
 
             }

@@ -99,21 +99,25 @@ func moveWindow(rect: CGRect?) -> String {
 """
 }
 
-func send(keyCode: Int, modifiers: [String] = [], to application: String) -> String {
-    var modifierText = modifiers.count > 0 ? "using {\(modifiers.joined(separator: ","))}" : ""
-  return """
-   tell application "System Events"
-         set currentApplication to first process where it is frontmost
-         log currentApplication
+func send(keyCode: Int, modifiers: [Modifier] = [], to application: String) -> String {
+    func modifierKeys() -> String {
+        if modifiers.count < 1 {
+            return ""
+        } else {
+            let text = "{\(modifiers.map { $0.rawValue + " down"}.joined(separator: ",") )}"
+            return text
+        }
+    }
+    return """
+    tell application "System Events"
+      set currentApplication to first process where it is frontmost
 
-           tell process "Simulator" to set frontmost to true
-           tell application "System Events"
-                tell application \(application)
-               key code \(keyCode) \(modifiers)
-            end tell
+      tell process "\(application)" to set frontmost to true
+      tell application "System Events"
+          key code \(keyCode) using \(modifierKeys())
+      end tell
 
-         delay 0.1
-         tell currentApplication to set frontmost to true
+      tell currentApplication to set frontmost to true
 
    end tell
   """
