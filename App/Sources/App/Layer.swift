@@ -1,5 +1,13 @@
 import Quartz
 
+struct Context {
+    // Name of app
+    let name: String
+    // when app is focused, these key commands are triggered
+    let mappings: [Mapping]
+}
+
+
 struct Mapping {
   var key: Int64
   var context: String?
@@ -15,28 +23,11 @@ enum CommandType {
 
 public struct Layer {
   var activationCommand: [KeyPattern]
-  var escapeKeys: [Int64] = [53] // default is escape
+  var exitKeys: [Int64] = [53] // default is escape
   var mappings: [Mapping]
-
-  func shouldDeactivate(_ event: CGEvent) -> Bool {
-    let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
-    if escapeKeys.contains(keyCode) {
-      for key in escapeKeys {
-        switch key {
-        case 63:
-          // false fo key down event..
-          return event.flags.contains(.maskSecondaryFn) == false
-        default:
-          return true
-        }
-      }
-
-    }
-    return false
-  }
 }
 
-public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], escapeKeys: [53, 54], mappings: [
+public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54])], exitKeys: [53, 54], mappings: [
     .init(key: 46, commands: [.shellCommand(.bash, ["osascript /Users/s-berkowitz/Development/scripting/toggle_mic_googleMeets.applescript"])]),
     .init(key: 17, commands: [.shellCommand(.bash, ["open -a Kaleidoscope"])]),
     .init(key: 15, commands: [.shellCommand(.bash, ["open -a Finder"])]),
@@ -50,7 +41,8 @@ public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54
       .init(key: 0, commands: [.shellCommand(.bash, ["open -a Iterm"])]),
 
       .init(key: 6, commands: [.closure( { print("location: ", CGPoint.mousePointForScreen()) })]), // z
-    
+
+
       .init(key: 7, context: "Arc", commands: [.closure( { SwiftCommand.clickAtPoint(CGPoint(x: 64.6953125, y: 904.35546875)) } )]), // x
       .init(key: 7, commands: [.closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1460.30078125, y: 954.44140625)) } )]), // x
       .init(key: 8, commands: [.closure( { SwiftCommand.clickAtPoint(CGPoint(x: 1483.1953125, y: 958.44140625)) } )]), // c
@@ -83,10 +75,10 @@ public let leftRightCommandOptionLayer = Layer(activationCommand: [.sequence([54
 
 ])
 
-//public let controlArrowKeys = Layer(activationCommand: [.sequence([59])], escapeKeys: [59, 53, 49], mappings: [
-//  .init(key: 38, action: .remap(123)), // n
-//  .init(key: 40, action: .remap(125)), // e
-//  .init(key: 37, action: .remap(126)), // i
-//  .init(key: 41, action: .remap(124)), // o
-//])
+public let controlArrowKeys = Layer(activationCommand: [.sequence([59])], exitKeys: [59, 53, 49], mappings: [
+  .init(key: 38, commands: [.remap(123)]), // n
+  .init(key: 40, commands: [.remap(125)]), // e
+  .init(key: 37, commands: [ .remap(126)]), // i
+  .init(key: 41, commands: [.remap(124)]), // o
+])
 

@@ -59,8 +59,11 @@ public final class LayerController {
 
      switch currentLayer {
      case .some(let layer):
+         func shouldDeactivateCurrentLayer(_ keyCode: Int64) -> Bool {
+            return layer.exitKeys.contains(keyCode)
+        }
 
-       guard layer.shouldDeactivate(event) == false else {
+       guard shouldDeactivateCurrentLayer(keycode) == false else {
          print("deactivate layer")
          exitLayerPlayer?.play()
          currentLayer = nil
@@ -69,19 +72,21 @@ public final class LayerController {
        }
 
          func contextMatchesCurrentApplication(_ context: String?) -> Bool {
-             print(NSWorkspace.shared.frontmostApplication?.localizedName)
              if let context = context {
                  return context == NSWorkspace.shared.frontmostApplication?.localizedName
              }
              return true
          }
+         
          if let mapping = layer.mappings.first(where: { contextMatchesCurrentApplication($0.context) && ($0.key == keycode) }), event.type == .keyDown {
           for command in mapping.commands {
 
               switch command {
               case .remap(let remappedKey):
                   event.setIntegerValueField(.keyboardEventKeycode, value: remappedKey)
+                  // SHould not be hardcoded, should add meta key to remove
                   event.flags.remove(.maskControl)
+//                  NSWorkspace.shared.frontmostApplication?.activate()
                   print("remap \(mapping.key) to \(remappedKey)")
               case .shellCommand(let path, let command):
                   runScript(path, command)
