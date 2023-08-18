@@ -3,77 +3,73 @@ import Foundation
 var displayRects: [CGRect] = []
 var count: Int = 0
 public func initWindows() {
-  runScript(.applescript, [getScreens()])
+
+  runScript(.applescript, [getScreens()]) { process in
+        if let _output = process.standardOutput as? Pipe {
+
+          do {
+            guard let data = try _output.fileHandleForReading.readToEnd(),
+                  let rawString = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) else {
+              print("Could not run process~ \(process)")
+              return
+            }
+            print("rawString \n\(rawString)")
+            let splitByComma = rawString
+              .split(separator: ",")
+              .compactMap { Float($0.trimmingCharacters(in: .whitespaces)) }
+              .map { CGFloat($0) }
+
+            guard (splitByComma.count % 4) == 0  else {
+              return
+            }
+
+            guard count == 0 else {
+              return
+            }
+
+            print(splitByComma)
+            let frame1 = CGRect(x: splitByComma[0], y: splitByComma[1], width: splitByComma[2], height: splitByComma[3])
+            displayRects.append(frame1)
+            if splitByComma.count == 8 {
+              let frame2 = CGRect(x: splitByComma[4], y: splitByComma[5], width: splitByComma[6], height: splitByComma[7])
+              displayRects.append(frame2)
+            }
+            print("displayRects \(displayRects)")
+            count = 1
+          } catch {
+            print("error \(error.localizedDescription)")
+          }
+        }
+    }
 }
 enum ScriptPath: String {
   case applescript = "/usr/bin/osascript"
   case bash = "/bin/bash"
 }
 
-func runScript(_ scriptPath: ScriptPath = .bash, _ arguments: [String]) {
-  do {
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: scriptPath.rawValue)
-    var _arguments: [String] = []
-    switch scriptPath {
-    case .applescript:
-      _arguments.append("-e")
-    case .bash:
-      _arguments.append("-c")
-    }
-
-    process.arguments = _arguments + arguments
-    print("process.arguments: \(process.arguments)")
-    let outputPipe = Pipe()
-    process.standardOutput = outputPipe
-    try process.run()
-    process.waitUntilExit()
-    process.terminationHandler = { process -> Void in
-      if let _output = process.standardOutput as? Pipe {
-
-        do {
-          guard let data = try _output.fileHandleForReading.readToEnd(),
-                let rawString = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .newlines) else {
-            print("Could not run process~ \(process)")
-            return
-          }
-          // TODO:Move this out of here...
-          print("rawString \n\(rawString)")
-          let splitByComma = rawString
-            .split(separator: ",")
-            .compactMap { Float($0.trimmingCharacters(in: .whitespaces)) }
-            .map { CGFloat($0) }
-
-          guard (splitByComma.count % 4) == 0  else {
-            return
-          }
-
-          guard count == 0 else {
-            return
-          }
-
-          print(splitByComma)
-          let frame1 = CGRect(x: splitByComma[0], y: splitByComma[1], width: splitByComma[2], height: splitByComma[3])
-          displayRects.append(frame1)
-          if splitByComma.count == 8 {
-            let frame2 = CGRect(x: splitByComma[4], y: splitByComma[5], width: splitByComma[6], height: splitByComma[7])
-            displayRects.append(frame2)
-          }
-          print("displayRects \(displayRects)")
-          count = 1
-        } catch {
-          print("error \(error.localizedDescription)")
+func runScript(_ scriptPath: ScriptPath = .bash, _ arguments: [String], completion: @escaping (Process) -> Void) {
+    do {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: scriptPath.rawValue)
+        var _arguments: [String] = []
+        switch scriptPath {
+        case .applescript:
+            _arguments.append("-e")
+        case .bash:
+            _arguments.append("-c")
         }
 
-      }
+        process.arguments = _arguments + arguments
+        print("process.arguments: \(process.arguments)")
+        let outputPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.terminationHandler = completion
+        try process.run()
+        process.waitUntilExit()
+    } catch {
+        print("error: \(error)")
     }
-
-  } catch {
-    print("error \(error.localizedDescription)")
-  }
 }
-
-
 
 func getRunningApplications() -> String {
   return """

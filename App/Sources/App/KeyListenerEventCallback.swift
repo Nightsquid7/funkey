@@ -82,7 +82,7 @@ public final class LayerController {
                event.flags.remove(.maskControl)
                print("remap \(keycode) to \(remappedKey)")
            case .shellCommand(let path, let command):
-               runScript(path, command)
+               runScript(path, command)  { _ in }
                // Set the value to function key to avoid calling native key command if it exists
                event.setIntegerValueField(.keyboardEventKeycode, value: 63)
 

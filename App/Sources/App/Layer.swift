@@ -84,12 +84,12 @@ public let rightCommandOptionLayer = Layer(activationCommand: 54, exitKeys: [53,
         }),
         .closure( {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                runScript(.bash, ["open -a Xcode_14.2.app"])
+                runScript(.bash, ["open -a Xcode_14.2.app"]) { _ in }
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     let script = send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")
                     print(script)
-                    runScript(.applescript, [send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")])
+                    runScript(.applescript, [send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")])  { _ in }
                 }
 
             }
