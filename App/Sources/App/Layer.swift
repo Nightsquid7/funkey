@@ -104,10 +104,10 @@ public let rightCommandOptionLayer = Layer(activationCommand: 54, exitKeys: [53,
 
 ])
 
-public let controlArrowKeys = Layer(activationCommand: 59, exitKeys: [59, 53, 49], mappings: [
-  .init(key: 38, commands: [.remap(123)]), // n
-  .init(key: 40, commands: [.remap(125)]), // e
-  .init(key: 37, commands: [ .remap(126)]), // i
-  .init(key: 41, commands: [.remap(124)]), // o
-])
+//public let controlArrowKeys = Layer(activationCommand: 59, exitKeys: [59, 53, 49], mappings: [
+//  .init(key: 38, commands: [.remap(123)]), // n
+//  .init(key: 40, commands: [.remap(125)]), // e
+//  .init(key: 37, commands: [ .remap(126)]), // i
+//  .init(key: 41, commands: [.remap(124)]), // o
+//])
 
