@@ -83,8 +83,9 @@ public let rightCommandOptionLayer = Layer(activationCommand: 54, exitKeys: [53,
                 print("result: \(result)")
             })
             Task {
-                if #available(macOS 13.0, *) {
+//                if #available(macOS 13.0, *) {
                     do {
+
                         let simulatorWindowPosition = try await asyncRunScript(.applescript, [getAppWindowFrameScript(for: "Simulator")], wantsOutput: true)
                         print("got simulatorWindowPosition: \(simulatorWindowPosition)")
                         guard let simulatorWindowPosition else {
@@ -104,15 +105,15 @@ public let rightCommandOptionLayer = Layer(activationCommand: 54, exitKeys: [53,
                         print("simulatorWindow \(simulatorWindow)")
                         SwiftCommand.dragUpAtPoint(CGPoint.init(x: simulatorWindow.midX, y: simulatorWindow.midY))
 
-                        try await Task.sleep(for: .seconds(0.2))
+                        try await Task.sleep(nanoseconds: secondsToNanoseconds(0.2))
                         runScript(.bash, ["open -a Xcode_14.2.app"]) { _ in }
-                        try await Task.sleep(for: .seconds(0.7))
-                        runScript(.applescript, [send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")])  { _ in }
+//                        try await Task.sleep(nanoseconds: secondsToNanoseconds(0.7))
+//                        runScript(.applescript, [send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")])  { _ in }
                     } catch {
                         print("task do error \(error)")
                     }
                 }
-            }
+//            }
         }),
       ]),
 
