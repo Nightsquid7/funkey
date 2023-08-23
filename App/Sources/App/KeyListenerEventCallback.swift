@@ -29,6 +29,7 @@ public func KeyListenerEventCallback(proxy: CGEventTapProxy, type: CGEventType, 
 
   print("\t\t\(keyCode) \(type) shift \(shift) caps \(caps) cmd \(command) ctrl \(control) alt \(option) function \(function)")
   var _event = event
+    // IS there async problem here when
   LayerController.shared.parse(&_event)
   return Unmanaged.passRetained(_event)
 
@@ -69,10 +70,22 @@ public final class LayerController {
     ]
 
   var stream: [CGEvent] = []
-
+  var lastDownEvent: CGEvent = .init(keyboardEventSource: nil, virtualKey: .zero, keyDown: false)!
+  var lastDownEventCount = 0
    func parse(_ event: inout CGEvent) {
      stream.append(event)
+
      let keycode = event.getIntegerValueField(.keyboardEventKeycode)
+
+     if event.type == .keyDown {
+       print("lastDownEvent code: \(lastDownEvent.getIntegerValueField(.keyboardEventKeycode)),  lastDownEventCount: \(lastDownEventCount)")
+       if lastDownEvent.getIntegerValueField(.keyboardEventKeycode) == keycode {
+         lastDownEventCount += 1
+       } else {
+         lastDownEventCount = 0
+       }
+       lastDownEvent = event
+     }
 
        func run(_ command: CommandType) {
            switch command {
@@ -86,8 +99,9 @@ public final class LayerController {
                // Set the value to function key to avoid calling native key command if it exists
                event.setIntegerValueField(.keyboardEventKeycode, value: 63)
 
+
            case .closure(let closure):
-               print("run closure... ")
+//               print("run closure... ")
                closure()
                event.setIntegerValueField(.keyboardEventKeycode, value: 63)
            }
@@ -116,7 +130,7 @@ public final class LayerController {
          }
 
          if let mapping = layer.mappings.first(where: { contextMatchesCurrentApplication($0.context) && ($0.key == keycode) }), event.type == .keyDown {
-          for command in mapping.commands {
+             for command in mapping.commands {
               run(command)
           }
 
@@ -136,11 +150,11 @@ public final class LayerController {
                  if case .app(let name) = context.name, name == NSWorkspace.shared.frontmostApplication?.localizedName,
                     let mapping = context.mappings.first(where: { $0.key == keycode } ),
                     mappingFlagsMatchEventKey(mapping) {
-                     mapping.commands.forEach {
-                         run($0)
-                     }
-                     stream = []
-                     return
+                    mapping.commands.forEach {
+                        run($0)
+                    }
+                    stream = []
+                    return
                  }
              }
          }
