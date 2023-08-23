@@ -33,8 +33,6 @@ struct ContentView: View {
           let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
           CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
           CGEvent.tapEnable(tap: eventTap, enable: true)
-//          CFRunLoopRun()
-
         }
     }
 
