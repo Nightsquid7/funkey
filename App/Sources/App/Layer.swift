@@ -36,6 +36,7 @@ enum Modifier: String {
 
 struct Mapping {
   var key: Int64
+  var eventNumber: Int = 0
   var modifiers: [Modifier] = []
   var context: String?
   var commands: [CommandType]
@@ -60,7 +61,7 @@ public let rightCommandOptionLayer = Layer(activationCommand: 54, exitKeys: [53,
     .init(key: 46, commands: [.shellCommand(.bash, ["osascript /Users/s-berkowitz/Development/scripting/toggle_mic_googleMeets.applescript"])]),
     .init(key: 17, commands: [.shellCommand(.bash, ["open -a Kaleidoscope"])]),
     .init(key: 15, commands: [.shellCommand(.bash, ["open -a Finder"])]),
-      .init(key: 14, commands: [.shellCommand(.bash, ["open -a Notes"])]),
+      .init(key: 14, commands: [.shellCommand(.bash, ["open -a Obsidian"])]),
       .init(key: 13, commands: [.shellCommand(.bash, ["open -a Simulator"])]),
       .init(key: 12, commands: [.shellCommand(.bash, ["open -a Slack"])]),
       .init(key: 5, commands: [.shellCommand(.bash, ["open -a Things3"])]),
@@ -78,28 +79,49 @@ public let rightCommandOptionLayer = Layer(activationCommand: 54, exitKeys: [53,
       .init(key: 9, commands: [  // v
         .shellCommand(.applescript, [goHomeSimulator()]),
         .closure({
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                SwiftCommand.dragUpAtPoint(CGPoint(x: 1325.71484375, y: 444.66796875))
+            runScript(.applescript, [getAppWindowFrameScript(for: "Simulator")], completion: { result in
+                print("result: \(result)")
+            })
+            Task {
+                if #available(macOS 13.0, *) {
+                    do {
+                        let simulatorWindowPosition = try await asyncRunScript(.applescript, [getAppWindowFrameScript(for: "Simulator")], wantsOutput: true)
+                        print("got simulatorWindowPosition: \(simulatorWindowPosition)")
+                        guard let simulatorWindowPosition else {
+                            print("simulator isn't open")
+                            return
+                        }
+                        let processedXYWidthHeight = simulatorWindowPosition
+                          .split(separator: ",")
+                          .compactMap {Float($0.trimmingCharacters(in: .whitespaces).trimmingCharacters(in: .newlines))}
+                          .map { CGFloat($0) }
+                        guard processedXYWidthHeight.count == 4 else {
+                            print("simulatorWindow position processedXYWidthHeight is not correct format: \(processedXYWidthHeight)")
+                            return
+                        }
+
+                        let simulatorWindow: CGRect = .init(x: processedXYWidthHeight[0], y: processedXYWidthHeight[1], width: processedXYWidthHeight[2], height: processedXYWidthHeight[3])
+                        print("simulatorWindow \(simulatorWindow)")
+                        SwiftCommand.dragUpAtPoint(CGPoint.init(x: simulatorWindow.midX, y: simulatorWindow.midY))
+
+                        try await Task.sleep(for: .seconds(0.2))
+                        runScript(.bash, ["open -a Xcode_14.2.app"]) { _ in }
+                        try await Task.sleep(for: .seconds(0.7))
+                        runScript(.applescript, [send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")])  { _ in }
+                    } catch {
+                        print("task do error \(error)")
+                    }
+                }
             }
         }),
-        .closure( {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-                runScript(.bash, ["open -a Xcode_14.2.app"]) { _ in }
-
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    let script = send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")
-                    print(script)
-                    runScript(.applescript, [send(keyCode: 15, modifiers: [.command], to: "Xcode_14.2.app")])  { _ in }
-                }
-
-            }
-        })
       ]),
 
-        .init(key: 32, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .full))])]), // u
-        .init(key: 38, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .bottomHalf))])]), // n
+      .init(key: 32, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .full))])]), // u
+      .init(key: 38, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .bottomHalf))])]), // n
       .init(key: 40, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .topHalf))])]), // e
       .init(key: 37, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .leftHalf))])]), // i
+      .init(key: 37, eventNumber: 1, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .leftThreeFourths))])]), // i
+//      .init(key: 37, eventNumber: 3, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .leftHalf))])]), // i
       .init(key: 41, commands: [.shellCommand(.applescript, [moveWindow(rect: displayRects.first?.rect(for: .rightHalf))])]), // o
 
 ])
